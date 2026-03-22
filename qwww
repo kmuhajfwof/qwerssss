@@ -2,13 +2,15 @@
 set -e
 source /venv/main/bin/activate
 
-WORKSPACE=${WORKSPACE:-/workspace}
-COMFYUI_DIR="${WORKSPACE}/ComfyUI"
+COMFYUI_DIR=/opt/ComfyUI
 
 # ── Только модели — ноды и зависимости уже в Docker-образе ────────────────
 
-CLIP_MODELS=(
+TEXT_ENCODERS=(
     "https://huggingface.co/f5aiteam/CLIP/resolve/main/umt5_xxl_fp8_e4m3fn_scaled.safetensors"
+)
+
+CLIP_VISION=(
     "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors"
 )
 
@@ -16,8 +18,11 @@ VAE_MODELS=(
     "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors"
 )
 
-DETECTION_MODELS=(
+DIFFUSION_MODELS=(
     "https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors"
+)
+
+DETECTION_MODELS=(
     "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B/resolve/main/process_checkpoint/det/yolov10m.onnx"
     "https://huggingface.co/Kijai/vitpose_comfy/resolve/main/onnx/vitpose_h_wholebody_data.bin"
     "https://huggingface.co/Kijai/vitpose_comfy/resolve/main/onnx/vitpose_h_wholebody_model.onnx"
@@ -28,10 +33,6 @@ LORAS=(
     "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors"
     "https://huggingface.co/alibaba-pai/Wan2.2-Fun-Reward-LoRAs/resolve/main/Wan2.2-Fun-A14B-InP-low-noise-HPS2.1.safetensors"
     "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Pusa/Wan21_PusaV1_LoRA_14B_rank512_bf16.safetensors"
-)
-
-DIFFUSION_MODELS=(
-    "https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_scaled_e4m3fn_KJ_v2.safetensors"
 )
 
 function download_files() {
@@ -49,16 +50,12 @@ function download_files() {
     done
 }
 
-# Скачиваем только модели
-download_files "${COMFYUI_DIR}/models/clip"             "${CLIP_MODELS[@]}"
-download_files "${COMFYUI_DIR}/models/clip_vision"      "${CLIP_MODELS[@]}"
-download_files "${COMFYUI_DIR}/models/vae"              "${VAE_MODELS[@]}"
-download_files "${COMFYUI_DIR}/models/detection"        "${DETECTION_MODELS[@]}"
-download_files "${COMFYUI_DIR}/models/loras"            "${LORAS[@]}"
-download_files "${COMFYUI_DIR}/models/diffusion_models" "${DIFFUSION_MODELS[@]}"
+# Скачиваем модели
+download_files "${COMFYUI_DIR}/models/text_encoders"    "${TEXT_ENCODERS[@]}"
+download_files "${COMFYUI_DIR}/models/clip_vision"       "${CLIP_VISION[@]}"
+download_files "${COMFYUI_DIR}/models/vae"               "${VAE_MODELS[@]}"
+download_files "${COMFYUI_DIR}/models/diffusion_models"  "${DIFFUSION_MODELS[@]}"
+download_files "${COMFYUI_DIR}/models/detection"         "${DETECTION_MODELS[@]}"
+download_files "${COMFYUI_DIR}/models/loras"             "${LORAS[@]}"
 
 echo "✅ Models downloaded"
-
-# Запускаем ComfyUI
-cd "${COMFYUI_DIR}"
-python main.py --listen 0.0.0.0 --port 8188
