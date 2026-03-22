@@ -2,9 +2,9 @@
 set -e
 source /venv/main/bin/activate
 
-COMFYUI_DIR=/opt/ComfyUI
+COMFYUI_DIR=/workspace/ComfyUI
 
-# ── Только модели — ноды и зависимости уже в Docker-образе ────────────────
+# ── Модели (скачиваются с Hugging Face при старте) ────────────────
 
 TEXT_ENCODERS=(
     "https://huggingface.co/f5aiteam/CLIP/resolve/main/umt5_xxl_fp8_e4m3fn_scaled.safetensors"
